@@ -47,4 +47,26 @@ will be very sparse.
 In this file, you should probably only do machine learning for a single column (multitask doesn't make too much sense, but I could be wrong). All failures and docking scores above zero were converted to zero, yes some have a lot of failures, but those are informative. Don't remove the zeros.
 Now for the NaN's in the _minimize or _mmgbsa columns, these you should remove and NaN indicates a task was not computed. 
 
-Columns are titled 'smiles' or 'protein_pocketid_{dock, mmgbsa, minimize}'. They corresond to different values, dock of course referring to docking score.
+Columns are titled 'smiles' or 'protein_pocketid_{dock, mmgbsa, minimize}'. They correspond to different values, dock of course referring to docking score.
+
+### Joining on smiles
+There is some confusion here, things are cannonical up to the method you used for it. I rec. just doing it before the join like
+
+```python
+from rdkit import Chem
+import pandas as pd
+def cannon_smile(smi):
+    try:
+        cannon = Chem.MolFromSmiles(smi)
+        if cannon is not None:
+            return Chem.MolToSmiles(cannon, canonical=True)
+        else:
+            print(smi)
+    except:
+        print('error', smi)
+    return smi
+
+df1.smiles = df1.smiles.apply(cannon_smile)
+df2.smiles = df2.smiles.apply(cannon_smile)
+pd.merge(df1, df2, on='smiles')
+```
