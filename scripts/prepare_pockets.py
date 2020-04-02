@@ -3,7 +3,7 @@ import sys
 import numpy as np
 from openeye import oedocking, oechem
 from pymol import cmd
-
+import shutil
 
 def create_receptor(output_name, pdb_file, bp_min, bp_max):
     check_oeb = output_name
@@ -43,7 +43,7 @@ def maxN(x, y):
     return x
 
 
-def get_min_max(fname, inc=5):
+def get_min_max(fname, inc=10):
     data = {}
     with open(fname, 'r') as f:
         next(f)
@@ -101,13 +101,24 @@ def read_fppocket_file(fname):
 
     return pockets
 
+def rename(dir):
+    name = dir.split("/")[-2]
+    name = "ADRP_pocket1_" + name
+    # print(name)
+    return "/".join(dir.split("/")[:-2])  + "/" + name + "/"
+# directories = glob.glob('/Users/austin/Downloads/pockets-outliers'+ "/*/")
+# for dir in directories:
+#    shutil.move(dir, rename(dir))
+directories = glob.glob('/Users/austin/Downloads/pockets-outliers'+ "/*/")
 
-directories = glob.glob(sys.argv[1] + "*/")
+print(directories)
 
 with open('out.csv', 'w') as fout:
     for struct in directories:
         pockets = read_fppocket_file(glob.glob(struct + "*.txt")[0])
-        protein_name = struct.split("/")[-2].split("_")[0]
+        protein_name = "_".join(struct.split("/")[-2].split("_")[22:26])
+        print(protein_name)
+        # exit()
         pocket_data = get_min_max(glob.glob(struct + "*.pqr")[0])
         pdb_file = glob.glob(struct + "*.pdb")[0]
 
